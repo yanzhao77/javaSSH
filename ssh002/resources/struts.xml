@@ -1,0 +1,46 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE struts PUBLIC "-//Apache Software Foundation//DTD Struts Configuration 2.1//EN" "http://struts.apache.org/dtds/struts-2.1.dtd">
+<struts>
+	<!-- 加载继承struts-default类 -->
+	<!-- struts-default包是由struts内置的，它定义了struts2内部的众多拦截器和Result类型， 而Struts2很多核心的功能都是通过这些内置的拦截器实现 -->
+	<package name="default" namespace="/" extends="struts-default">
+
+		<action name="login" method="checkLogin" class="com.ssh.action.UsersAction">
+			<!-- 重定向到getAllUsers这个Action -->
+			<result type="redirectAction">getAllUsers</result>
+			<result name="error">/error.jsp</result>
+		</action>
+
+		<action name="getUserView" method="getUserView" class="com.ssh.action.UsersAction">
+			<result name="success">/showUser.jsp</result>
+			<result name="error">/error.jsp</result>
+		</action>
+
+		<action name="getUserUpdate" method="getUserUpdate"
+			class="com.ssh.action.UsersAction">
+			<result name="success">/update.jsp</result>
+			<result name="error">/error.jsp</result>
+		</action>
+
+		<action name="getAllUsers" method="getListUsers" class="com.ssh.action.UsersAction">
+			<result name="success">/showAllUsers.jsp</result>
+			<result name="error">/error.jsp</result>
+		</action>
+
+		<action name="addUser" method="addUser" class="com.ssh.action.UsersAction">
+			<result type="redirectAction">getAllUsers</result>
+			<result name="error">/error.jsp</result>
+		</action>
+
+		<action name="deleteUser" method="deleteUser" class="com.ssh.action.UsersAction">
+			<result type="redirectAction">getAllUsers</result>
+			<result name="error">/error.jsp</result>
+		</action>
+
+		<action name="updateUser" method="updateUser" class="com.ssh.action.UsersAction">
+			<result type="redirectAction">getAllUsers</result>
+			<result name="error">/error.jsp</result>
+		</action>
+
+	</package>
+</struts>    

@@ -1,0 +1,90 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns="http://www.springframework.org/schema/beans"
+	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:p="http://www.springframework.org/schema/p"
+	xmlns:tx="http://www.springframework.org/schema/tx" xmlns:aop="http://www.springframework.org/schema/aop"
+
+	xsi:schemaLocation="http://www.springframework.org/schema/beans 
+	http://www.springframework.org/schema/beans/spring-beans-3.0.xsd
+	http://www.springframework.org/schema/tx
+	http://www.springframework.org/schema/tx/spring-tx-3.0.xsd
+	http://www.springframework.org/schema/aop
+	http://www.springframework.org/schema/aop/spring-aop-3.0.xsd
+
+	">
+<!-- 装载链接数据库的配置信息 -->
+	<bean id="dataSource" class="org.apache.commons.dbcp.BasicDataSource">
+		<property name="driverClassName" value="oracle.jdbc.OracleDriver">
+		</property>
+		<property name="url" value="jdbc:oracle:thin:@localhost:1521:orcl">
+		</property>
+		<property name="username" value="scott"></property>
+		<property name="password" value="ROOT"></property>
+	</bean>
+	
+	<!-- 创建sqlSessionFactory工厂,其生命周期整个应用程序. -->
+	<bean id="sessionFactory"
+		class="org.springframework.orm.hibernate3.LocalSessionFactoryBean">
+		<property name="dataSource">
+			<ref bean="dataSource" />
+		</property>
+		<property name="hibernateProperties">
+			<props>
+			<!-- 智能识别各个链接数据库，对应生成不同的sql语句 -->
+				<prop key="hibernate.dialect">
+					org.hibernate.dialect.Oracle9Dialect
+				</prop>
+				<!-- 在日志显示sql语句 -->
+				<prop key="hibernate.show_sql">
+					true
+				</prop>
+			</props>
+		</property>
+		<!-- 将xml文件导入解析 -->
+		<property name="mappingResources">
+			<list>
+				<value>com/ssh/entity/Users.hbm.xml</value>
+
+			</list>
+		</property>
+	</bean>
+<!-- 事物管理 -->
+	<bean id="txManager"
+		class="org.springframework.orm.hibernate3.HibernateTransactionManager">
+		<property name="sessionFactory" ref="sessionFactory" />
+	</bean>
+	
+	<!-- 定义事物属性，声明事物规则 -->
+	<tx:advice id="txAdvice" transaction-manager="txManager">
+
+		<tx:attributes>
+			<tx:method name="find*" read-only="true" />
+			<tx:method name="search*" read-only="true" />
+			<tx:method name="query*" read-only="true" />
+			<tx:method name="add*" propagation="REQUIRED" />
+			<tx:method name="register" propagation="REQUIRED" />
+			<tx:method name="del*" propagation="REQUIRED" />
+			<tx:method name="update*" propagation="REQUIRED" />
+			<tx:method name="do*" propagation="REQUIRED" />
+			<tx:method name="*" propagation="REQUIRED" read-only="true" />
+		</tx:attributes>
+	</tx:advice>
+	
+	<!-- 面向切面设置 -->
+	<aop:config>
+	<!-- 设置切面具体位置 -->
+		<aop:pointcut id="serviceMethod" expression="execution(* com.ssh.biz.*.*(..))" />
+
+		<aop:advisor advice-ref="txAdvice" pointcut-ref="serviceMethod" />
+	</aop:config>
+
+<!-- 将sessionFactory注入具体的包中 -->
+	<bean id="userdao" class="com.ssh.dao.UsersDaoImpl">
+		<property name="sessionFactory" ref="sessionFactory" />
+	</bean>
+	
+	<!-- 注入service层数据 -->
+	<bean id="ubiz" class="com.ssh.biz.UsersBizImpl">
+		<property name="udao" ref="userdao" />
+	</bean>
+
+</beans>
